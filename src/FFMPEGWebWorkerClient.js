@@ -100,17 +100,18 @@ export default class FFMPEGWebworkerClient extends EventEmitter {
   }
 
   /**
-   * @param {String} command
+   * @param {String} prefilecommand
+   * @param {String} postfilecommand
    */
-  runCommand = (command, totalMemory = 33554432) => {
-    if (typeof command !== "string" || !command.length) {
+  runCommand = (prefilecommand, postfilecommand, totalMemory = 33554432) => {
+    if (typeof postfilecommand !== "string" || !postfilecommand.length) {
       throw new Error("command should be string and not empty");
     }
     if (this.inputFile && this.inputFile.type) {
       this.convertInputFileToArrayBuffer().then(arrayBuffer => {
         while (!this.workerIsReady) {}
         const filename = `video-${Date.now()}.webm`;
-        const inputCommand = `-i ${filename} ${command}`;
+        const inputCommand = `${prefilecommand} -i ${filename} ${postfilecommand}`;
         this.worker.postMessage({
           type: "command",
           arguments: inputCommand.split(" "),
